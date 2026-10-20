@@ -29,4 +29,26 @@ namespace SampleLibrary
         underneath them are skipped.
     */
     std::unique_ptr<SampleFolderNode> scan (const juce::File& root);
+
+    /** Where imported packs live for the current macOS user account:
+        ~/Library/Application Support/OrBit6/Packs. Created on first use.
+    */
+    juce::File getPacksRoot();
+
+    /** Copies `sourceFolder` (recursively) into the packs root under a unique
+        name, so the pack survives independently of wherever the user
+        originally picked it from. Returns the new on-disk location, or an
+        invalid File if the copy failed.
+    */
+    juce::File importPack (const juce::File& sourceFolder);
+
+    /** Permanently deletes a previously imported pack folder (and everything
+        in it) from the packs root.
+    */
+    void deletePack (const juce::File& packFolder);
+
+    /** Lists the top-level folders directly under the packs root — one per
+        previously imported pack.
+    */
+    std::vector<juce::File> listStoredPackFolders();
 }

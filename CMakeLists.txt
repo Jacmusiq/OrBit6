@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(ApolloCrate VERSION 0.1.0)
+project(OrBit6 VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,36 +15,46 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
-juce_add_gui_app(ApolloCrate
-    PRODUCT_NAME "Apollo Crate"
+juce_add_gui_app(OrBit6
+    PRODUCT_NAME "OrBit 6"
     COMPANY_NAME "HenrySinger"
-    BUNDLE_ID "com.henrysinger.apollocrate"
+    BUNDLE_ID "com.henrysinger.orbit6"
     MICROPHONE_PERMISSION_ENABLED FALSE
     DOCUMENT_EXTENSIONS ""
+    ICON_BIG "Assets/Icon.png"
 )
 
-juce_generate_juce_header(ApolloCrate)
+juce_generate_juce_header(OrBit6)
 
-target_sources(ApolloCrate PRIVATE
+target_sources(OrBit6 PRIVATE
     Source/Main.cpp
     Source/MainComponent.cpp
+    Source/TextTabButton.cpp
+    Source/BrowserView.cpp
+    Source/SamplerView.cpp
     Source/SampleLibrary.cpp
     Source/FolderTreeItem.cpp
     Source/SampleListBoxModel.cpp
     Source/SamplePlayer.cpp
+    Source/SamplerEngine.cpp
+    Source/SamplerKeyboardComponent.cpp
+    Source/SamplerWaveformComponent.cpp
+    Source/TapeEffect.cpp
+    Source/FavoritesStore.cpp
+    Source/WaveformComponent.cpp
     Source/Theme.cpp
 )
 
-target_compile_definitions(ApolloCrate PRIVATE
+target_compile_definitions(OrBit6 PRIVATE
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
-    JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:ApolloCrate,JUCE_PRODUCT_NAME>"
-    JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:ApolloCrate,JUCE_VERSION>"
+    JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:OrBit6,JUCE_PRODUCT_NAME>"
+    JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:OrBit6,JUCE_VERSION>"
 )
 
-target_include_directories(ApolloCrate PRIVATE Source)
+target_include_directories(OrBit6 PRIVATE Source)
 
-target_link_libraries(ApolloCrate PRIVATE
+target_link_libraries(OrBit6 PRIVATE
     juce::juce_audio_utils
     juce::juce_audio_devices
     juce::juce_audio_formats
@@ -59,8 +69,8 @@ target_link_libraries(ApolloCrate PRIVATE
 # locally or copied to another Mac (recipients still need to right-click >
 # Open the first time, since this isn't a notarized Developer ID signature).
 if(APPLE)
-    add_custom_command(TARGET ApolloCrate POST_BUILD
-        COMMAND codesign --force --deep -s - "$<TARGET_BUNDLE_DIR:ApolloCrate>"
-        COMMENT "Ad-hoc signing Apollo Crate.app"
+    add_custom_command(TARGET OrBit6 POST_BUILD
+        COMMAND codesign --force --deep -s - "$<TARGET_BUNDLE_DIR:OrBit6>"
+        COMMENT "Ad-hoc signing OrBit 6.app"
     )
 endif()

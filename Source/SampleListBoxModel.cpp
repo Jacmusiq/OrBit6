@@ -1,7 +1,7 @@
 #include "SampleListBoxModel.h"
 
-SampleListBoxModel::SampleListBoxModel (SamplePlayer& playerToUse, const Theme::Accent& accentRef)
-    : player (playerToUse), accent (accentRef)
+SampleListBoxModel::SampleListBoxModel (SamplePlayer& playerToUse, FavoritesStore& favoritesToUse, const Theme::Accent& accentRef)
+    : player (playerToUse), favorites (favoritesToUse), accent (accentRef)
 {
 }
 
@@ -27,66 +27,73 @@ void SampleListBoxModel::paintListBoxItem (int rowNumber, juce::Graphics& g, int
     auto colour = Theme::colourFor (accent);
     auto file = getFile (rowNumber);
     bool playing = player.isPlaying (file);
+    bool fav = favorites.isFavorite (file);
 
     if (playing)
         g.fillAll (colour.withAlpha (0.28f));
     else if (rowIsSelected)
         g.fillAll (colour.withAlpha (0.12f));
 
-    g.setColour (playing || rowIsSelected ? colour : Theme::dim (colour));
-    g.setFont (Theme::terminalFont (14.0f));
+    auto rowColour = playing || rowIsSelected ? colour : Theme::dim (colour);
 
     auto playMark = playing ? juce::String (juce::CharPointer_UTF8 ("\xe2\x96\xb6 ")) : juce::String ("  ");
-    g.drawText (playMark + file.getFileNameWithoutExtension(), 8, 0, width - 160, height, juce::Justification::centredLeft);
+    Theme::drawPixelText (g, playMark + file.getFileNameWithoutExtension(), { 8, 0, width - 180, height },
+                         juce::Justification::centredLeft, rowColour, 14.0f);
 
-    g.setFont (Theme::terminalFont (12.0f));
-    g.drawText (player.describeFormat (file), width - 150, 0, 140, height, juce::Justification::centredRight);
+    if (fav)
+        Theme::drawPixelText (g, juce::String (juce::CharPointer_UTF8 ("\xe2\x98\x85")), { width - 178, 0, 18, height },
+                             juce::Justification::centred, colour, 13.0f);
+
+    Theme::drawPixelText (g, player.describeFormat (file), { width - 150, 0, 140, height },
+                         juce::Justification::centredRight, rowColour, 12.0f);
 }
 
-void SampleListBoxModel::listBoxItemClicked (int row, const juce::MouseEvent&)
+void SampleListBoxModel::listBoxItemClicked (int row, const juce::MouseEvent& e)
 {
     auto file = getFile (row);
     if (file == juce::File())
         return;
 
-    if (player.isPlaying (file))
-        player.stop();
-    else
-        player.play (file);
-}
-
-SampleListBox::SampleListBox (SampleListBoxModel& modelToUse)
-    : juce::ListBox ("SampleList", &modelToUse), model (modelToUse)
-{
-}
-
-void SampleListBox::mouseDown (const juce::MouseEvent& e)
-{
-    juce::ListBox::mouseDown (e);
-    dragRow = getRowContainingPosition (e.x, e.y);
-    dragStarted = false;
-}
-
-void SampleListBox::mouseDrag (const juce::MouseEvent& e)
-{
-    if (dragStarted || dragRow < 0)
+    if (e.mods.isPopupMenu())
+    {
+        showContextMenu (row);
         return;
+    }
 
-    if (e.getDistanceFromDragStart() < 12)
-        return;
+    // Every click retriggers from the start, so you can click as many times
+    // as you like — no toggling to stop on a repeat click of the same row.
+    player.play (file);
+}
 
-    dragStarted = true;
-    auto file = model.getFile (dragRow);
+void SampleListBoxModel::showContextMenu (int row)
+{
+    auto file = getFile (row);
     if (file == juce::File())
         return;
 
-    if (auto* container = juce::DragAndDropContainer::findParentDragContainerFor (this))
-        container->performExternalDragDropOfFiles ({ file.getFullPathName() }, false, this);
+    bool fav = favorites.isFavorite (file);
+
+    juce::PopupMenu menu;
+    menu.addItem (1, fav ? "Remove from Favorites" : "Add to Favorites");
+    menu.addItem (2, "Load into Sampler");
+
+    menu.showMenuAsync (juce::PopupMenu::Options(), [this, file, fav] (int result)
+    {
+        if (result == 1)
+            favorites.setFavorite (file, ! fav);
+        else if (result == 2 && onLoadIntoSampler != nullptr)
+            onLoadIntoSampler (file);
+    });
 }
 
-void SampleListBox::mouseUp (const juce::MouseEvent& e)
+juce::var SampleListBoxModel::getDragSourceDescription (const juce::SparseSet<int>& rowsToDescribe)
 {
-    juce::ListBox::mouseUp (e);
-    dragRow = -1;
-    dragStarted = false;
+    if (rowsToDescribe.isEmpty())
+        return {};
+
+    auto file = getFile (rowsToDescribe[0]);
+    if (file == juce::File())
+        return {};
+
+    return juce::String (sampleDragMarker) + file.getFullPathName();
 }

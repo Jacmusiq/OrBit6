@@ -17,9 +17,17 @@ public:
         purple
     };
 
-    static juce::Colour background() noexcept { return juce::Colour (0xff050505); }
-    static juce::Colour panel() noexcept      { return juce::Colour (0xff0a0a0a); }
+    static juce::Colour background() noexcept { return juce::Colour (0xff0a0806); }
+    static juce::Colour panel() noexcept      { return juce::Colour (0xff100d0a); }
+    static juce::Colour chassis() noexcept    { return juce::Colour (0xff221d17); }
+    static juce::Colour chassisHighlight() noexcept { return juce::Colour (0xff3a332a); }
+    static juce::Colour chassisShadow() noexcept    { return juce::Colour (0xff000000); }
     static juce::Colour dim (juce::Colour c) noexcept { return c.withAlpha (0.45f); }
+
+    /** A small tiled grain texture for a worn CRT/hardware look. Built once
+        and cached.
+    */
+    static const juce::Image& noiseTexture();
 
     static juce::Colour colourFor (Accent a) noexcept
     {
@@ -47,11 +55,23 @@ public:
         return "";
     }
 
+    /** The monospace family every label/slider in the app uses — bold, so
+        even smoothly-rendered text (sliders, combo boxes) reads chunkier
+        and closer to the pixel-art look used everywhere else.
+    */
     static juce::Font terminalFont (float height) noexcept
     {
-        auto opts = juce::Font::getDefaultMonospacedFontName();
-        return juce::Font (juce::FontOptions (opts, height, juce::Font::plain));
+        return juce::Font (juce::FontOptions (juce::Font::getDefaultMonospacedFontName(), height, juce::Font::bold));
     }
+
+    /** Renders text as a small, un-antialiased bitmap then scales it up with
+        nearest-neighbour sampling — a cheap way to get a genuine blocky,
+        "raw pixel" look without bundling a bitmap font. Used for all the
+        custom-painted text throughout the app (titles, tree/list rows, the
+        keyboard, the waveform labels).
+    */
+    static void drawPixelText (juce::Graphics& g, const juce::String& text, juce::Rectangle<int> area,
+                               juce::Justification justification, juce::Colour colour, float pixelHeight);
 
     /** Persisted accent colour choice, backed by a small properties file. */
     static Accent loadAccent();

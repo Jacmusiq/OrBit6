@@ -2,10 +2,10 @@
 #include "MainComponent.h"
 #include "Theme.h"
 
-class ApolloCrateApplication : public juce::JUCEApplication
+class OrBit6Application : public juce::JUCEApplication
 {
 public:
-    const juce::String getApplicationName() override { return "Apollo Crate"; }
+    const juce::String getApplicationName() override { return "OrBit 6"; }
     const juce::String getApplicationVersion() override { return "0.1.0"; }
     bool moreThanOneInstanceAllowed() override { return true; }
 
@@ -25,8 +25,9 @@ public:
             setUsingNativeTitleBar (true);
             setContentOwned (new MainComponent(), true);
             setResizable (true, true);
-            centreWithSize (1000, 640);
+            centreWithSize (1080, 868);
             setVisible (true);
+            getContentComponent()->grabKeyboardFocus();
         }
 
         void closeButtonPressed() override
@@ -41,4 +42,4 @@ private:
     std::unique_ptr<MainWindow> mainWindow;
 };
 
-START_JUCE_APPLICATION (ApolloCrateApplication)
+START_JUCE_APPLICATION (OrBit6Application)

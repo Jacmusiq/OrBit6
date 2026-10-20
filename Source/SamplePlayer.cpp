@@ -1,9 +1,9 @@
 #include "SamplePlayer.h"
 
-SamplePlayer::SamplePlayer()
+SamplePlayer::SamplePlayer (juce::AudioDeviceManager& deviceManagerToUse)
+    : deviceManager (deviceManagerToUse)
 {
     formatManager.registerBasicFormats();
-    deviceManager.initialiseWithDefaultDevices (0, 2);
     sourcePlayer.setSource (&transport);
     deviceManager.addAudioCallback (&sourcePlayer);
     startTimerHz (20);
@@ -33,6 +33,9 @@ void SamplePlayer::play (const juce::File& file)
     transport.setPosition (0.0);
     transport.start();
 
+    if (onFileStarted != nullptr)
+        onFileStarted (file);
+
     if (onPlaybackStateChanged != nullptr)
         onPlaybackStateChanged();
 }
@@ -40,6 +43,16 @@ void SamplePlayer::play (const juce::File& file)
 void SamplePlayer::stop()
 {
     transport.stop();
+    if (onPlaybackStateChanged != nullptr)
+        onPlaybackStateChanged();
+}
+
+void SamplePlayer::resume()
+{
+    if (readerSource == nullptr)
+        return;
+
+    transport.start();
     if (onPlaybackStateChanged != nullptr)
         onPlaybackStateChanged();
 }

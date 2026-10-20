@@ -1,27 +1,64 @@
-# Apollo Crate
+# OrBit 6
 
-A minimal, 80s-terminal-styled sample browser for drum packs. Point it at a
-folder, navigate the kit's subfolders, click a sample to hear it instantly,
-and drag it straight into a track or sampler in Logic Pro X (or any other
-DAW).
+An 80s-terminal-styled drum sample browser and keyboard sampler in one app.
+**ORBIT 6** (top-left) is the Browser — navigate your drum packs and
+favorites with instant preview; **SAMPLER** (next to it, styled the same way)
+loads any sample onto a computer-keyboard piano with editing, a vintage tape
+effect, and recording.
 
 ## Features
 
+### Browser (ORBIT 6)
 - **One-click instant preview** — click any sample row to hear it immediately;
   clicking a new one stops whatever was playing, so you can click through a
-  kit fast.
+  kit fast. Hit **Space** to pause and resume exactly where you left off.
+- **Live waveform** — shows the waveform of whatever's playing, with a moving
+  playhead.
 - **8/16/24/32-bit support** — reads WAV and AIFF at any of those bit depths
   (plus FLAC, Ogg and MP3), and shows each sample's bit depth / sample rate
   next to its name.
-- **Drag-and-drop export** — drag a sample row out of the window and drop it
-  onto a track or a sampler plugin in Logic Pro X (or Finder, or anywhere
-  else that accepts a dropped audio file).
-- **Subfolder navigation** — "Load Drum Pack..." scans a folder recursively;
-  the tree on the left lets you drill into nested kit subfolders (e.g.
-  `808 Pack/Kicks`, `808 Pack/Snares/Acoustic`) the way most drum packs ship.
-- **80s terminal look** — black background, monospace type, and a phosphor
-  accent colour you can switch between green / pink / white / blue / purple
-  (the 5 swatches in the top-right; your choice is remembered next launch).
+- **Drag-and-drop anywhere** — drag a sample row straight out of the window
+  and drop it onto the Desktop, into Finder, or onto a track or sampler
+  plugin in Logic Pro X (or any other DAW) — a real native file drag.
+- **Your own stored library** — "LOAD DRUM PACK..." imports a copy of the
+  folder you choose into the app's own storage (per macOS user account), so
+  it's there every time you reopen the app. Right-click a pack in the tree
+  to delete it permanently.
+- **Subfolder navigation** — each imported pack can contain any number of
+  nested subfolders, browsable in the tree on the left.
+- **Favorites, right in the tree** — right-click any sample and choose
+  **Add to / Remove from Favorites**. A **★ FAVORITES** entry always sits at
+  the top of the tree, collecting every starred sample from every pack in
+  one flat list — same preview/double-click/drag behaviour as any pack.
+
+### Sampler
+- **Double-click (or right-click > Load into Sampler) any sample** in the
+  Browser tree or Favorites to send it here.
+- **Computer-keyboard piano** — play the loaded sample pitched across your
+  keyboard: `A S D F G H J K L ;` are the white keys, `W E T Y U O P` are the
+  black keys between them, **Z / X** shift the whole keyboard down/up an
+  octave. It's polyphonic — hold several keys at once — and also playable
+  with the mouse on the on-screen keys.
+- **Editing** — Start/End trim, Gain, Tune (±24 semitones), Reverse, and a
+  full Attack/Decay/Sustain/Release envelope.
+- **Vintage tape machine** — an optional insert effect (Reel-to-Reel,
+  Cassette, or Lo-Fi Boombox, with an Amount knob) adding tape saturation,
+  wow & flutter pitch wobble, hiss, and high-end rolloff.
+- **Recording** — hit **● REC** and play the keyboard; it captures exactly
+  what comes out of the Sampler (tape effect included if it's on) to a WAV
+  file. Hit **■ STOP** to save it.
+
+### Look
+- **Vintage hardware look** — a black terminal screen inset into a brushed
+  chassis with corner screws, CRT grain, and a vignette, in a phosphor accent
+  colour you can switch between green / pink / white / blue / purple (the 5
+  swatches top-right; your choice is remembered next launch).
+- **Raw pixel type** — every piece of text in the app (titles, lists, the
+  keyboard, labels) is rendered as a small bitmap and scaled up with no
+  smoothing, for a blocky, low-res terminal look rather than smooth system
+  type.
+- **ORBIT 6 / SAMPLER** are plain bold text headers, not boxed tabs — click
+  either to switch; the active one is underlined.
 
 ## Requirements
 
@@ -43,44 +80,65 @@ The first configure fetches JUCE 8 via `FetchContent` — this takes a few
 minutes. The app bundle lands at:
 
 ```
-build/ApolloCrate_artefacts/Release/Apollo Crate.app
+build/OrBit6_artefacts/Release/OrBit 6.app
 ```
 
 Launch it with:
 
 ```bash
-open "build/ApolloCrate_artefacts/Release/Apollo Crate.app"
+open "build/OrBit6_artefacts/Release/OrBit 6.app"
 ```
 
 ## Using it
 
-1. Click **LOAD DRUM PACK...** and choose the top-level folder of a drum pack
-   (it can contain any number of nested subfolders).
-2. Click through the tree on the left to open a subfolder — its samples
-   appear in the list on the right.
-3. Click a sample to preview it. Click it again (or click another) to stop
-   it / switch.
-4. Drag a sample out of the list and drop it onto a track or a sampler's
-   drop zone in Logic Pro X to use it in a beat.
-5. Pick an accent colour from the 5 swatches top-right — it's remembered
+1. Click **ORBIT 6** (top-left) if it isn't already showing, click **LOAD
+   DRUM PACK...**, and choose a drum pack's top-level folder. It's copied
+   into the app's own library and appears in the tree on the left — this can
+   take a moment for a large pack.
+2. Click through the tree to open a pack's subfolders — the samples directly
+   inside the selected folder appear in the list on the right. Click
+   **★ FAVORITES** at the top of the tree to see everything you've starred.
+3. Click a sample to preview it; click again to stop. **Space** pauses/resumes
+   in place. Drag a row out to the Desktop, Finder, or a DAW.
+4. **Double-click a sample** (or right-click it and choose **Load into
+   Sampler**) to send it to **SAMPLER** and switch there automatically.
+5. In Sampler, play it with the on-screen/computer keyboard (see the key map
+   above), adjust Start/End/Gain/Tune/Reverse/ADSR, optionally flip on the
+   tape machine, and hit **● REC** to print a take to a WAV file.
+6. Right-click a sample anywhere to **Add to Favorites**.
+7. Right-click a pack (a top-level entry in the tree) to delete it from your
+   library permanently.
+8. Pick an accent colour from the 5 swatches top-right — it's remembered
    between launches.
+
+## Where things are stored
+
+Everything lives under `~/Library/Application Support/OrBit6/`, scoped to
+your macOS user account:
+- `Packs/` — one folder per imported drum pack (rescanned on every launch).
+- `favorites.txt` — the list of favorited sample paths.
+- `Recordings/` — WAV files captured from the Sampler, named
+  `Take-YYYYMMDD-HHMMSS.wav`.
+
+Deleting a pack from the app removes its folder from disk for good.
 
 ## Sharing the built app
 
 The build is ad-hoc signed, which is enough for it to launch without a
-"damaged app" warning on your own Mac. If you copy `Apollo Crate.app` to
-another Mac, macOS Gatekeeper will still flag it as being from an
-unidentified developer (it isn't notarized) — the recipient should
-right-click the app and choose **Open** the first time, or clear the
-quarantine flag themselves:
+"damaged app" warning on your own Mac. If you copy `OrBit 6.app` to another
+Mac, macOS Gatekeeper will still flag it as being from an unidentified
+developer (it isn't notarized) — the recipient should right-click the app
+and choose **Open** the first time, or clear the quarantine flag themselves:
 
 ```bash
-xattr -cr "Apollo Crate.app"
+xattr -cr "OrBit 6.app"
 ```
 
 ## Known limitations
 
-- Playback is a simple one-shot preview (no looping, no gain/pitch controls)
-  — it's a browser, not a sampler.
+- The Sampler is monotimbral — one loaded sample at a time, polyphonic
+  across the keyboard, not a multi-sample/multi-pad instrument.
+- No loop points — ADSR release lets a held note tail off, but the sample
+  body itself doesn't loop.
 - Supported formats are whatever JUCE's bundled `AudioFormatManager` reads:
   WAV, AIFF, FLAC, Ogg Vorbis and MP3 (decode only, no encoding).

@@ -49,3 +49,49 @@ std::unique_ptr<SampleFolderNode> SampleLibrary::scan (const juce::File& root)
 
     return node;
 }
+
+juce::File SampleLibrary::getPacksRoot()
+{
+    auto root = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                    .getChildFile ("OrBit6")
+                    .getChildFile ("Packs");
+    root.createDirectory();
+    return root;
+}
+
+juce::File SampleLibrary::importPack (const juce::File& sourceFolder)
+{
+    if (! sourceFolder.isDirectory())
+        return {};
+
+    auto root = getPacksRoot();
+    auto baseName = sourceFolder.getFileName();
+    auto target = root.getChildFile (baseName);
+
+    for (int suffix = 2; target.exists(); ++suffix)
+        target = root.getChildFile (baseName + " " + juce::String (suffix));
+
+    if (! sourceFolder.copyDirectoryTo (target))
+        return {};
+
+    return target;
+}
+
+void SampleLibrary::deletePack (const juce::File& packFolder)
+{
+    packFolder.deleteRecursively();
+}
+
+std::vector<juce::File> SampleLibrary::listStoredPackFolders()
+{
+    std::vector<juce::File> result;
+
+    for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator (getPacksRoot(), false, "*", juce::File::findDirectories))
+        result.push_back (entry.getFile());
+
+    std::sort (result.begin(), result.end(),
+               [] (const juce::File& a, const juce::File& b)
+               { return a.getFileName().compareIgnoreCase (b.getFileName()) < 0; });
+
+    return result;
+}

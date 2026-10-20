@@ -1,10 +1,12 @@
 #pragma once
 
 #include <juce_gui_extra/juce_gui_extra.h>
-#include "SampleLibrary.h"
-#include "FolderTreeItem.h"
-#include "SampleListBoxModel.h"
 #include "SamplePlayer.h"
+#include "FavoritesStore.h"
+#include "SamplerEngine.h"
+#include "BrowserView.h"
+#include "SamplerView.h"
+#include "TextTabButton.h"
 #include "Theme.h"
 
 class MainComponent : public juce::Component,
@@ -16,29 +18,38 @@ public:
 
     void paint (juce::Graphics& g) override;
     void resized() override;
+    bool keyPressed (const juce::KeyPress& key) override;
+
+protected:
+    bool shouldDropFilesWhenDraggedExternally (const juce::DragAndDropTarget::SourceDetails& sourceDetails,
+                                               juce::StringArray& files, bool& canMoveFiles) override;
 
 private:
-    void loadDrumPack();
-    void showFolder (const SampleFolderNode* folder);
+    enum class Tab { browser, sampler };
+
+    void showTab (Tab t);
     void setAccent (Theme::Accent a);
     void rebuildAccentButtons();
+    void loadIntoSampler (const juce::File& file);
+    void setStatus (const juce::String& text);
 
     Theme::Accent accent;
 
-    juce::TextButton loadButton { "LOAD DRUM PACK..." };
-    juce::Label titleLabel;
+    TextTabButton browserTab { "BROWSER", accent };
+    TextTabButton samplerTab { "SAMPLER (BETA)", accent };
     juce::Label statusLabel;
+    juce::Label brandLabel;
     juce::OwnedArray<juce::TextButton> accentButtons;
 
-    juce::TreeView folderTree;
-
+    juce::AudioDeviceManager deviceManager;
     SamplePlayer player;
-    SampleListBoxModel listModel;
-    SampleListBox sampleList;
+    FavoritesStore favorites;
+    SamplerEngine samplerEngine;
 
-    std::unique_ptr<SampleFolderNode> libraryRoot;
-    std::unique_ptr<FolderTreeItem> rootTreeItem;
-    std::unique_ptr<juce::FileChooser> fileChooser;
+    BrowserView browserView;
+    SamplerView samplerView;
+
+    Tab currentTab = Tab::browser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
