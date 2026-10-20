@@ -1,0 +1,327 @@
+<title>OrBit 6</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0806;
+    --panel:#100d0a;
+    --panel-line:#231c16;
+    --chassis:#221d17;
+    --chassis-hi:#44392c;
+    --chassis-lo:#000000;
+    --paper:#e8e2d6;
+    --accent:#39ff14;
+    --accent-dim:rgba(57,255,20,.45);
+    --accent-faint:rgba(57,255,20,.12);
+    --display:'Press Start 2P', 'Courier New', monospace;
+    --body:'VT323', 'Courier New', monospace;
+    --max:960px;
+  }
+
+  *{box-sizing:border-box;}
+  html{background:var(--bg);}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--paper);
+    font-family:var(--body);
+    font-size:20px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  ::selection{background:var(--accent);color:#000;}
+
+  h1,h2,h3{font-family:var(--display);line-height:1.4;text-wrap:balance;margin:0;}
+  p{margin:0;}
+
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px;}
+
+  /* ---------- grain + scanlines (shared texture) ---------- */
+  .crt{
+    position:relative;
+    background:var(--bg);
+    overflow:hidden;
+  }
+  .crt::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.05) 0px,
+      rgba(255,255,255,.05) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events:none;
+    mix-blend-mode:overlay;
+    z-index:2;
+  }
+  .grain{
+    position:fixed;inset:0;
+    opacity:.07;
+    pointer-events:none;
+    z-index:1;
+    background-repeat:repeat;
+    background-size:96px 96px;
+  }
+  .crt > *:not(.grain){position:relative;z-index:3;}
+
+  /* ---------- hardware chassis ---------- */
+  .chassis{
+    background:var(--chassis);
+    border-radius:10px;
+    padding:14px;
+    box-shadow:
+      inset 0 1px 0 var(--chassis-hi),
+      inset 0 -2px 0 var(--chassis-lo),
+      0 20px 60px -20px rgba(0,0,0,.8);
+    position:relative;
+  }
+  .screw{
+    position:absolute;width:10px;height:10px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--chassis-hi), #000 75%);
+    box-shadow:0 1px 2px rgba(0,0,0,.6);
+  }
+  .screw.tl{top:10px;left:10px;}
+  .screw.tr{top:10px;right:10px;}
+  .screw.bl{bottom:10px;left:10px;}
+  .screw.br{bottom:10px;right:10px;}
+
+  .screen{
+    border-radius:4px;
+    padding:28px clamp(18px,4vw,48px);
+  }
+
+  /* ---------- top nav ---------- */
+  header.top{padding:28px 0 0;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .wordmark{
+    font-family:var(--display);
+    font-size:15px;
+    letter-spacing:1px;
+    color:var(--accent);
+    text-shadow:0 0 10px var(--accent-dim);
+    display:flex;align-items:center;gap:10px;
+  }
+  .wordmark img{width:24px;height:24px;image-rendering:pixelated;}
+  nav.pagelinks{display:flex;gap:22px;font-size:19px;color:var(--accent-dim);}
+  nav.pagelinks a{text-decoration:none;color:var(--accent);opacity:.65;transition:opacity .15s;}
+  nav.pagelinks a:hover{opacity:1;}
+  nav.pagelinks a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+  /* ---------- swatches (live, functional) ---------- */
+  .swatches{display:flex;gap:8px;}
+  .swatch{
+    width:20px;height:20px;border-radius:3px;border:1px solid rgba(255,255,255,.25);
+    cursor:pointer;padding:0;
+  }
+  .swatch:focus-visible{outline:2px solid var(--paper);outline-offset:2px;}
+  .swatch[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bg), 0 0 0 4px currentColor;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:56px 0 64px;}
+  .eyebrow{
+    font-size:16px;letter-spacing:3px;color:var(--accent-dim);
+    text-transform:uppercase;margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:clamp(28px,5.4vw,52px);
+    color:var(--paper);
+    margin-bottom:22px;
+  }
+  .hero h1 .hl{color:var(--accent);text-shadow:0 0 14px var(--accent-dim);}
+  .hero .sub{
+    font-size:23px;
+    max-width:54ch;
+    color:#c9c2b4;
+    margin-bottom:34px;
+  }
+  .cta-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;}
+  .btn{
+    font-family:var(--display);
+    font-size:13px;
+    padding:16px 22px;
+    text-decoration:none;
+    display:inline-flex;align-items:center;gap:10px;
+    border-radius:4px;
+    transition:transform .1s ease, box-shadow .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn:focus-visible{outline:2px solid var(--paper);outline-offset:3px;}
+  .btn-primary{
+    background:var(--accent);
+    color:#05130a;
+    box-shadow:0 0 0 1px rgba(0,0,0,.3), 0 8px 24px -10px var(--accent);
+  }
+  .btn-primary:hover{box-shadow:0 0 0 1px rgba(0,0,0,.3), 0 10px 30px -8px var(--accent);}
+  .btn-ghost{
+    background:transparent;
+    color:var(--accent);
+    border:1px solid var(--accent-dim);
+  }
+  .btn-ghost:hover{background:var(--accent-faint);}
+  .fine{font-size:16px;color:#7d766a;margin-top:10px;}
+  .fine a{color:var(--accent-dim);text-decoration:underline;}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0;}
+  .section-head{max-width:62ch;margin-bottom:38px;}
+  .section-head .eyebrow{margin-bottom:12px;}
+  .section-head h2{font-size:clamp(22px,3.4vw,30px);color:var(--paper);}
+
+  /* ---------- download / donate modules ---------- */
+  .modules{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panel-line);border:1px solid var(--panel-line);}
+  @media (max-width:720px){.modules{grid-template-columns:1fr;}}
+  .module{background:var(--panel);padding:36px 30px;display:flex;flex-direction:column;gap:16px;}
+  .module .slot{
+    height:14px;border-radius:7px;
+    background:linear-gradient(180deg, #000, #1a1510);
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.8);
+    margin-bottom:6px;
+  }
+  .module h3{font-size:15px;color:var(--accent);}
+  .module p{font-size:19px;color:#b9b2a4;}
+  .module .btn{align-self:flex-start;margin-top:6px;}
+  .req{font-size:16px;color:#7d766a;}
+
+  /* ---------- footer ---------- */
+  footer{padding:40px 0 60px;border-top:1px solid var(--panel-line);}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:16px;color:#6b645a;}
+  footer a{color:#6b645a;text-decoration:underline;}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+
+<div class="crt">
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="top">
+      <div class="topbar">
+        <div class="wordmark"><img src="icon.png" alt="">ORBIT 6</div>
+        <nav class="pagelinks" aria-label="Page sections">
+          <a href="#get">Download</a>
+          <a href="#support">Donate</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">A vintage drum-sample browser &amp; keyboard sampler for macOS</p>
+      <h1><span class="hl">OrBit 6</span></h1>
+      <p class="sub">Browse your packs, favorite what sticks, play it on your keyboard.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#get">Download for macOS</a>
+        <a class="btn btn-ghost" href="#support">Donate &ndash; it's free either way</a>
+      </div>
+      <p class="fine">macOS 11 Big Sur or later &middot; Apple Silicon &amp; Intel &middot; free, no account needed</p>
+    </section>
+
+    <section id="get">
+      <div class="section-head">
+        <p class="eyebrow">Take it home</p>
+        <h2>Free to use. Free to keep.</h2>
+      </div>
+      <div class="modules">
+        <div class="module">
+          <div class="slot" aria-hidden="true"></div>
+          <h3>Download OrBit 6</h3>
+          <p>No installer &mdash; unzip it and drag it into Applications.</p>
+          <a class="btn btn-primary" href="https://github.com/DialogueOne-Appendix/OrBit6/releases/download/v0.1.0/OrBit6-macOS.zip" id="download-link">&#9660; Download for macOS</a>
+          <p class="req">macOS 11+ &middot; Apple Silicon &amp; Intel</p>
+        </div>
+        <div class="module" id="support">
+          <div class="slot" aria-hidden="true"></div>
+          <h3>Support the project</h3>
+          <p>Free forever. If you'd like to leave something, it's genuinely appreciated.</p>
+          <a class="btn btn-ghost" href="https://paypal.me/REPLACE_WITH_YOUR_PAYPAL" id="donate-link" target="_blank" rel="noopener">&#9829; Donate via PayPal</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <span>OrBit 6 &mdash; built with JUCE 8</span>
+        <span>Choose your phosphor: the swatches up top are live.</span>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ACCENTS = {
+    green:  { hex:'#39ff14', dim:'rgba(57,255,20,.45)',  faint:'rgba(57,255,20,.12)'  },
+    pink:   { hex:'#ff2fb2', dim:'rgba(255,47,178,.45)', faint:'rgba(255,47,178,.12)' },
+    white:  { hex:'#e8e8e8', dim:'rgba(232,232,232,.45)',faint:'rgba(232,232,232,.12)'},
+    blue:   { hex:'#00d9ff', dim:'rgba(0,217,255,.45)',  faint:'rgba(0,217,255,.12)'  },
+    purple: { hex:'#b026ff', dim:'rgba(176,38,255,.45)', faint:'rgba(176,38,255,.12)' }
+  };
+  var ORDER = ['green','pink','white','blue','purple'];
+  var root = document.documentElement;
+
+  function apply(name){
+    var a = ACCENTS[name];
+    if (!a) return;
+    root.style.setProperty('--accent', a.hex);
+    root.style.setProperty('--accent-dim', a.dim);
+    root.style.setProperty('--accent-faint', a.faint);
+    document.querySelectorAll('.swatch').forEach(function(btn){
+      btn.setAttribute('aria-pressed', btn.dataset.accent === name ? 'true' : 'false');
+    });
+    try { localStorage.setItem('orbit6-accent', name); } catch (e) {}
+  }
+
+  var nav = document.querySelector('.topbar');
+  var row = document.createElement('div');
+  row.className = 'swatches';
+  row.setAttribute('role', 'group');
+  row.setAttribute('aria-label', 'Accent colour');
+  ORDER.forEach(function(name){
+    var b = document.createElement('button');
+    b.className = 'swatch';
+    b.type = 'button';
+    b.style.background = ACCENTS[name].hex;
+    b.style.color = ACCENTS[name].hex;
+    b.dataset.accent = name;
+    b.setAttribute('aria-label', name + ' accent');
+    b.addEventListener('click', function(){ apply(name); });
+    row.appendChild(b);
+  });
+  nav.appendChild(row);
+
+  var saved = 'green';
+  try { saved = localStorage.getItem('orbit6-accent') || 'green'; } catch (e) {}
+  apply(saved);
+
+  // film grain: a small noise tile, redrawn onto the fixed overlay's
+  // background so it repeats crisply instead of stretching across the
+  // whole scrollable page.
+  var grainEl = document.querySelector('.grain');
+  if (grainEl) {
+    var tile = document.createElement('canvas');
+    var w = 96, h = 96;
+    tile.width = w; tile.height = h;
+    var ctx = tile.getContext('2d');
+    function draw(){
+      var img = ctx.createImageData(w, h);
+      for (var i = 0; i < img.data.length; i += 4) {
+        var v = Math.random() * 255;
+        img.data[i] = img.data[i+1] = img.data[i+2] = v;
+        img.data[i+3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      grainEl.style.backgroundImage = 'url(' + tile.toDataURL() + ')';
+    }
+    draw();
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      setInterval(draw, 140);
+  }
+})();
+</script>
